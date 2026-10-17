@@ -83,13 +83,9 @@ const useJapaneseBadge = siteConfig.toc.useJapaneseBadge;
 				existingManager.cleanup();
 			}
 
-			const useJapaneseBadge =
-				root.dataset.japaneseBadge === "true";
-
 			const manager = new TOCManager({
 				contentElement: tocContent,
 				maxLevel: 3,
-				useJapaneseBadge,
 				scrollOffset: 80,
 			});
 

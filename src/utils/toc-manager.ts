@@ -12,7 +12,6 @@ export interface TOCConfig {
 	contentElement?: HTMLElement;
 	maxLevel?: number;
 	scrollOffset?: number;
-	useJapaneseBadge?: boolean;
 }
 
 export class TOCManager {
@@ -24,14 +23,12 @@ export class TOCManager {
 	private contentId: string | null;
 	private contentElement: HTMLElement | null;
 	private scrollOffset: number;
-	private useJapaneseBadge: boolean;
 
 	constructor(config: TOCConfig) {
 		this.contentId = config.contentId ?? null;
 		this.contentElement = config.contentElement ?? null;
 		this.maxLevel = config.maxLevel || 3;
 		this.scrollOffset = config.scrollOffset || 80;
-		this.useJapaneseBadge = config.useJapaneseBadge ?? false;
 	}
 
 	/**

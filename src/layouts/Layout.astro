@@ -482,7 +482,6 @@ if (siteConfig.font) {
 
 	const BANNER_HEIGHT = 35;
 	const BANNER_HEIGHT_EXTEND = 30;
-	const BANNER_HEIGHT_HOME = BANNER_HEIGHT + BANNER_HEIGHT_EXTEND;
 
 	// const MAIN_PANEL_OVERLAPS_BANNER_HEIGHT = 3.5;
 	import { siteConfig } from "../config";
@@ -1266,91 +1265,6 @@ function disableAnimation() {
 			checkKatex();
 		}
 	}
-
-	let backToTopBtn = document.getElementById("back-to-top-btn");
-	let toc = document.getElementById("toc-wrapper");
-	let navbar = document.getElementById("navbar-wrapper");
-
-	// 节流函数
-	function throttle(func: Function, limit: number) {
-		let inThrottle: boolean;
-		return function (this: any) {
-			const args = arguments;
-			const context = this;
-			if (!inThrottle) {
-				func.apply(context, args);
-				inThrottle = true;
-				setTimeout(() => (inThrottle = false), limit);
-			}
-		};
-	}
-
-	function scrollFunction() {
-		const scrollTop = document.documentElement.scrollTop;
-		const bannerHeight = window.innerHeight * (BANNER_HEIGHT / 100);
-		
-		// 尝试获取内容区域的起始位置
-		const contentWrapper = document.getElementById('content-wrapper');
-		let showBackToTopThreshold = bannerHeight + 100; // 默认回退值
-
-		if (contentWrapper) {
-			const rect = contentWrapper.getBoundingClientRect();
-			// 当 content-wrapper 的顶部接近视口顶部时显示
-			// rect.top 是相对于视口的，当它小于视口高度的一半时，说明已经滚动到了内容区
-			// 或者更简单：scrollTop > contentWrapper.offsetTop
-			// 由于 offsetTop 是相对于 offsetParent 的，可能需要累加
-			// 这里我们使用 getBoundingClientRect + scrollTop 来获取绝对位置
-			const absoluteTop = rect.top + scrollTop;
-			// 只有当滚动超过内容区域起始位置一定距离后才显示
-			showBackToTopThreshold = absoluteTop + window.innerHeight / 4;
-		}
-
-		// 批量处理DOM操作
-		requestAnimationFrame(() => {
-			if (backToTopBtn) {
-				// 使用动态计算的阈值
-				if (scrollTop > showBackToTopThreshold) {
-					backToTopBtn.classList.remove("hide");
-				} else {
-					backToTopBtn.classList.add("hide");
-				}
-			}
-
-			if (bannerEnabled && toc) {
-				const isBannerMode = document.body.classList.contains("enable-banner");
-				if (isBannerMode) {
-					if (scrollTop > bannerHeight) {
-						toc.classList.remove("toc-hide");
-					} else {
-						toc.classList.add("toc-hide");
-					}
-				} else {
-					// In Fullscreen or None mode, always show TOC
-					toc.classList.remove("toc-hide");
-				}
-			}
-
-			if (bannerEnabled && navbar) {
-				const isHome =
-					document.body.classList.contains("lg:is-home") &&
-					window.innerWidth >= 1024;
-				const currentBannerHeight = isHome
-					? BANNER_HEIGHT_HOME
-					: BANNER_HEIGHT;
-
-				const threshold =
-					window.innerHeight * (currentBannerHeight / 100) - 88;
-				if (scrollTop >= threshold) {
-					navbar.classList.add("navbar-hidden");
-				} else {
-					navbar.classList.remove("navbar-hidden");
-				}
-			}
-		});
-	}
-
-	// 使用节流优化滚动性能
-	// window.onscroll = throttle(scrollFunction, 16); // 约60fps
 
 	window.onresize = () => {
 		// calculate the --banner-height-extend, which needs to be a multiple of 4 to avoid blurry text
