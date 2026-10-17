@@ -63,9 +63,9 @@
   }
 
   /* 优化网格布局切换 */
-  #main-grid {
+  /* #main-grid {
     transition: all 0.3s ease-in-out;
-  }
+  } */
 
   /* 防止图片加载时的闪烁 */
   img {
