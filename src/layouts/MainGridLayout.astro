@@ -797,7 +797,7 @@ const transparentClass = "";
     <div class={`main-content-layout absolute w-full z-30 pointer-events-none ${mobileNonHomeBannerClass ? 'mobile-main-no-banner' : ''} ${siteConfig.wallpaperMode.defaultMode === 'none' ? 'no-banner-layout' : ''} ${transparentClass}`} style={`top: ${finalMainPanelTop}`}>
         <!-- The pointer-events-none here prevent blocking the click event of the TOC -->
         <div class="relative max-w-[var(--page-width)] mx-auto pointer-events-auto">
-            <div id="main-grid" class={`w-full left-0 right-0 grid ${gridCols} grid-rows-none md:grid-rows-[auto] mx-auto gap-4 px-2 md:px-4 ${!mobileShowSidebar || !hasMobileDrawerComponents ? 'mobile-no-sidebar' : ''} ${hasRightSidebarComponents ? 'mobile-both-sidebar' : ''}`}
+            <div id="main-grid" class={`w-full left-0 right-0 grid ${gridCols} grid-rows-none md:grid-rows-[auto] mx-auto gap-4 px-2 md:px-4 overflow-clip ${!mobileShowSidebar || !hasMobileDrawerComponents ? 'mobile-no-sidebar' : ''} ${hasRightSidebarComponents ? 'mobile-both-sidebar' : ''}`}
                 data-layout-mode={defaultPostListLayout}
             >
                 <!-- Banner image credit -->
@@ -826,7 +826,7 @@ const transparentClass = "";
                     )}
                 </div>
 
-                <main id="swup-container" class={`${mainContentClass} transition-main min-h-screen`}>
+                <main id="swup-container" class={`${mainContentClass} transition-main`}>
                     <div id="content-wrapper" class="onload-animation transition-leaving">
                         <!-- the overflow-hidden here prevent long text break the layout-->
                         <!-- make id different from windows.swup global property -->
@@ -1090,20 +1090,20 @@ body.no-banner-mode #toc-inner-wrapper {
     }
     
     /* 修复双侧边栏模式在平板端的布局问题 */
-    .mobile-both-sidebar {
+    /* .mobile-both-sidebar { */
         /* 移除平板端的单列布局限制，让 Tailwind 的 gridCols 处理 */
-        grid-template-columns: 1fr !important;
+        /* grid-template-columns: 1fr !important; */
         /* 确保左右padding对称 */
-        padding-left: 1rem !important;
+        /* padding-left: 1rem !important;
         padding-right: 1rem !important;
-    }
+    } */
     
     /* 确保平板端主内容区域正确显示 */
-    .mobile-both-sidebar main {
+    /* .mobile-both-sidebar main {
         grid-column: 1 / -1 !important;
         width: 100% !important;
         margin: 0 auto !important;
-    }
+    } */
     
     /* 平板端footer也要居中 */
     .mobile-both-sidebar .footer {
