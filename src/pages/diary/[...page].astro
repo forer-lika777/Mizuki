@@ -1,0 +1,51 @@
+---
+import { render } from "astro:content";
+import type { GetStaticPaths } from "astro";
+import DiaryTimeline from "../../components/DiaryTimeline.astro";
+import { siteConfig } from "../../config";
+import { DIARY_PAGE_SIZE } from "../../constants/constants";
+import { getDiaryList, getDiaryStats } from "../../data/diary";
+import I18nKey from "../../i18n/i18nKey";
+import { i18n } from "../../i18n/translation";
+import MainGridLayout from "../../layouts/MainGridLayout.astro";
+
+interface Props {
+	currentPage: number;
+}
+
+// 第 1 页由 /diary/ 提供，这里只生成第 2 页及之后的页面
+export const getStaticPaths = (async () => {
+	if (!siteConfig.featurePages.diary) return [];
+
+	const diaryList = await getDiaryList();
+	const lastPage = Math.ceil(diaryList.length / DIARY_PAGE_SIZE);
+
+	return Array.from({ length: Math.max(0, lastPage - 1) }, (_, index) => ({
+		params: { page: String(index + 2) },
+		props: { currentPage: index + 2 },
+	}));
+}) satisfies GetStaticPaths;
+
+const { currentPage } = Astro.props;
+
+const diaryList = await getDiaryList();
+const diaryStats = await getDiaryStats();
+const lastPage = Math.max(1, Math.ceil(diaryList.length / DIARY_PAGE_SIZE));
+const moments = await Promise.all(
+	diaryList
+		.slice((currentPage - 1) * DIARY_PAGE_SIZE, currentPage * DIARY_PAGE_SIZE)
+		.map(async (moment) => ({
+			...moment,
+			Content: (await render(moment.entry)).Content,
+		})),
+);
+---
+
+<MainGridLayout title={i18n(I18nKey.diary)} description="即刻短文">
+	<DiaryTimeline
+		moments={moments}
+		stats={diaryStats}
+		currentPage={currentPage}
+		lastPage={lastPage}
+	/>
+</MainGridLayout>

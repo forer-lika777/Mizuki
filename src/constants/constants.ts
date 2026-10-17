@@ -1,5 +1,8 @@
 export const PAGE_SIZE = 8;
 
+// 每页显示的日记数量
+export const DIARY_PAGE_SIZE = 10;
+
 export const LIGHT_MODE = "light",
 	DARK_MODE = "dark";
 export const DEFAULT_THEME = LIGHT_MODE;
