@@ -10,15 +10,18 @@ async function getRawSortedPosts() {
 		return import.meta.env.PROD ? data.draft !== true : true;
 	});
 
-	const sorted = allBlogPosts.sort((a, b) => {
+	// 内容存储异常时个别条目可能缺少 data，过滤掉避免整页崩溃
+	const validPosts = allBlogPosts.filter((post) => post?.data);
+
+	const sorted = validPosts.sort((a, b) => {
 		// 首先按置顶状态排序，置顶文章在前
-		if (a.data.pinned && !b.data.pinned) return -1;
-		if (!a.data.pinned && b.data.pinned) return 1;
+		if (a.data?.pinned && !b.data?.pinned) return -1;
+		if (!a.data?.pinned && b.data?.pinned) return 1;
 
 		// 如果置顶状态相同，优先按 Priority 排序（数值越小越靠前）
-		if (a.data.pinned && b.data.pinned) {
-			const priorityA = a.data.priority;
-			const priorityB = b.data.priority;
+		if (a.data?.pinned && b.data?.pinned) {
+			const priorityA = a.data?.priority;
+			const priorityB = b.data?.priority;
 			if (priorityA !== undefined && priorityB !== undefined) {
 				if (priorityA !== priorityB) return priorityA - priorityB;
 			} else if (priorityA !== undefined) {

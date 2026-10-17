@@ -1,0 +1,110 @@
+---
+import { resolveDiaryImages } from "../utils/diary-images";
+
+interface Props {
+	paths: string[];
+	galleryId: string;
+	alt?: string;
+}
+
+const { paths, galleryId, alt = "日记图片" } = Astro.props;
+
+const images = await resolveDiaryImages(paths, alt);
+const count = images.length;
+
+const MAX_TILES = 9;
+const isOverflow = count > MAX_TILES;
+const visibleImages = isOverflow ? images.slice(0, MAX_TILES) : images;
+const hiddenCount = count - visibleImages.length;
+const groupId = `diary-${galleryId.replace(/[^\w-]/g, "-")}`;
+
+const containerClass = (() => {
+	if (count === 1) return "grid grid-cols-1";
+	if (count === 2) return "grid grid-cols-2 gap-1.5 md:gap-2";
+	if (count === 3)
+		return "grid grid-cols-2 md:grid-cols-3 md:grid-rows-2 md:aspect-[3/2] gap-1.5 md:gap-2";
+	return "grid grid-cols-3 gap-1.5 md:gap-2";
+})();
+
+const getTileClass = (index: number) => {
+	if (count === 1) return "aspect-[2/1]";
+	if (count === 3) {
+		return index === 0
+			? "col-span-2 aspect-[2/1] md:col-span-2 md:row-span-2 md:aspect-auto md:h-full"
+			: "aspect-square md:aspect-auto md:h-full";
+	}
+	return "aspect-square";
+};
+---
+
+{count > 0 && (
+	<div class:list={["diary-images mb-3 md:mb-4", containerClass]}>
+		{/* 折叠时按 DOM 顺序排列隐藏锚点，使相册从第 9 张开始并包含全部图片 */}
+		{isOverflow &&
+			images
+				.slice(0, MAX_TILES - 1)
+				.map((image) => (
+					<a
+						href="javascript:void(0)"
+						data-src={image.full}
+						data-fancybox={groupId}
+						data-thumb={image.thumb}
+						class="hidden"
+						aria-hidden="true"
+						tabindex="-1"
+					/>
+				))}
+		{visibleImages.map((image, index) => {
+			const isMoreTile = isOverflow && index === MAX_TILES - 1;
+			return (
+				<a
+					href="javascript:void(0)"
+					data-src={image.full}
+					data-fancybox={isMoreTile ? groupId : `${groupId}-${index}`}
+					data-thumb={image.thumb}
+					class:list={[
+						"group relative block w-full overflow-hidden rounded-lg bg-[var(--card-bg)] cursor-pointer",
+						getTileClass(index),
+					]}
+					aria-label={
+						isMoreTile
+							? `查看全部 ${count} 张图片`
+							: `查看图片 ${index + 1}`
+					}
+				>
+					<img
+						src={image.thumb}
+						alt={image.alt}
+						width={image.width || undefined}
+						height={image.height || undefined}
+						loading="lazy"
+						decoding="async"
+						class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+					/>
+					{isMoreTile && (
+						<>
+							<span class="absolute inset-0 bg-black/55 transition-colors duration-300 group-hover:bg-black/45" />
+							<span class="absolute inset-0 flex items-center justify-center text-2xl font-semibold text-white md:text-3xl">
+								+{hiddenCount}
+							</span>
+						</>
+					)}
+				</a>
+			);
+		})}
+		{isOverflow &&
+			images
+				.slice(MAX_TILES)
+				.map((image) => (
+					<a
+						href="javascript:void(0)"
+						data-src={image.full}
+						data-fancybox={groupId}
+						data-thumb={image.thumb}
+						class="hidden"
+						aria-hidden="true"
+						tabindex="-1"
+					/>
+				))}
+	</div>
+)}

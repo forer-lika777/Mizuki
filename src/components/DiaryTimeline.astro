@@ -1,6 +1,7 @@
 ---
 import { Icon } from "astro-icon/components";
 import { siteConfig } from "../config";
+import DiaryImages from "./DiaryImages.astro";
 import type { DiaryItem, DiaryStats } from "../data/diary";
 import I18nKey from "../i18n/i18nKey";
 import { i18n } from "../i18n/translation";
@@ -105,28 +106,15 @@ const nextUrl = currentPage < lastPage ? getPageUrl(currentPage + 1) : undefined
 			<!-- 短文列表 -->
 			<div class="moments-timeline">
 				<div class="timeline-list space-y-4">
-					{moments.map(({ Content, ...moment }, index) => (
+					{moments.map(({ Content, ...moment }) => (
 						<div class="moment-item card-base-daily p-4 md:p-6 lg:p-8 hover:shadow-lg transition-all">
 							<div class="moment-content">
 								<div class="moment-text text-sm md:text-base lg:text-lg text-90 leading-relaxed mb-3 md:mb-4">
 									<Content />
 								</div>
 
-								{moment.images && moment.images.length > 0 && (
-									<div class="diary-images grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-3 lg:gap-4 mb-3 md:mb-4">
-										{moment.images.map((image, _index) => (
-											<div class="image-item relative rounded-md overflow-hidden aspect-square cursor-pointer hover:scale-105 transition-transform">
-												<a href="javascript:void(0)" data-src={image} data-fancybox={`gallery-${index}-${_index}`} class="block w-full h-full">
-													<img
-														src={image}
-														alt="diary moment image"
-														class="w-full h-full object-cover"
-														loading="lazy"
-													/>
-												</a>
-											</div>
-										))}
-									</div>
+								{moment.images.length > 0 && (
+									<DiaryImages paths={moment.images} galleryId={moment.id} />
 								)}
 							</div>
 
@@ -266,14 +254,6 @@ const nextUrl = currentPage < lastPage ? getPageUrl(currentPage + 1) : undefined
 		margin: 0.5rem 0;
 	}
 
-	.image-item img {
-		transition: transform 0.3s ease;
-	}
-
-	.image-item:hover img {
-		transform: scale(1.05);
-	}
-
 	.action-btn {
 		background: none;
 		border: none;
@@ -296,10 +276,6 @@ const nextUrl = currentPage < lastPage ? getPageUrl(currentPage + 1) : undefined
 			flex-direction: column;
 			text-align: center;
 			gap: 0.75rem;
-		}
-
-		.diary-images {
-			grid-template-columns: repeat(2, 1fr);
 		}
 
 		.moment-footer {
@@ -325,12 +301,6 @@ const nextUrl = currentPage < lastPage ? getPageUrl(currentPage + 1) : undefined
 			padding: 1.5rem;
 		}
 
-		.diary-images {
-			grid-template-columns: repeat(3, 1fr);
-			gap: 0.75rem;
-			max-width: 500px;
-		}
-
 		.moment-text {
 			font-size: 1rem;
 			line-height: 1.7;
@@ -349,12 +319,6 @@ const nextUrl = currentPage < lastPage ? getPageUrl(currentPage + 1) : undefined
 
 		.moment-item {
 			padding: 2rem;
-		}
-
-		.diary-images {
-			grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-			max-width: 600px;
-			gap: 1rem;
 		}
 
 		.moment-text {
