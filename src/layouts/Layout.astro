@@ -418,26 +418,28 @@ if (siteConfig.font) {
 	@tailwind components;
 	@layer components {
 		.enable-banner.lg\:is-home #banner-wrapper {
-			@apply h-[var(--banner-height-home)] translate-y-[0rem];
+			height: var(--banner-height-home);
+			transform: translateY(0rem);
 		}
+		
 		.enable-banner #banner-wrapper {
-			@apply h-[var(--banner-height-home)] translate-y-[calc(0rem_-_var(--banner-height-extend))];
+			height: var(--banner-height-home);
+			transform: translateY(calc(0rem - var(--banner-height-extend)));
 		}
-		/* .enable-banner.lg\:is-home #banner {
-			@apply h-[var(--banner-height-home)] translate-y-0;
-		}
-		.enable-banner #banner {
-			@apply h-[var(--banner-height-home)];
-		} */
+
 		.enable-banner.lg\:is-home #main-grid {
-			@apply translate-y-[calc(var(--banner-height-home)_+_1rem)];
+			transform: translateY(calc(var(--banner-height-home) + 1rem));
 		}
+
+		@media (max-width: 769px) {
+			.enable-banner.lg\:is-home #main-grid {
+				transform: translateY(calc(var(--banner-height-home) + 0.5rem));
+			}
+		}
+
 		.enable-banner #main-grid {
-			@apply translate-y-[calc(var(--banner-height-home)_-_var(--banner-height-extend)_-_10rem)];
+			transform: translateY(calc(var(--banner-height-home) - var(--banner-height-extend) - 10rem));
 		}
-		/* .enable-banner.lg\:is-home #sidebar {
-			@apply top-[calc(1rem_-_var(--banner-height-extend))];
-		} */
 
 		#banner-wrapper {
 			transition: top 700ms cubic-bezier(0.1, 0.7, 0.15, 1),
