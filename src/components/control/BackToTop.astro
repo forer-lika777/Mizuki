@@ -63,3 +63,48 @@ import { Icon } from "astro-icon/components";
         window.scroll({top: 0, behavior: 'smooth'});
     }
 </script>
+
+<script>
+    let ticking = false;
+
+    // 滚动超过「内容区顶部 + 1/4 视口」后显示按钮
+    function getShowThreshold(): number {
+        const scrollTop = window.scrollY || document.documentElement.scrollTop;
+        const contentWrapper = document.getElementById("content-wrapper");
+
+        if (contentWrapper) {
+            const rect = contentWrapper.getBoundingClientRect();
+            return rect.top + scrollTop + window.innerHeight / 4;
+        }
+
+        // 回退值：banner 高度（35vh）+ 100px
+        return window.innerHeight * 0.35 + 100;
+    }
+
+    function updateBackToTop() {
+        const button = document.getElementById("back-to-top-btn");
+        if (!button) return;
+
+        const scrollTop = window.scrollY || document.documentElement.scrollTop;
+        button.classList.toggle("hide", scrollTop <= getShowThreshold());
+    }
+
+    function requestUpdate() {
+        if (ticking) return;
+        ticking = true;
+        requestAnimationFrame(() => {
+            updateBackToTop();
+            ticking = false;
+        });
+    }
+
+    // 使用 rAF 合并滚动事件，避免高频 DOM 读写；Swup 切换页面后监听依然有效
+    const scrollBound = (window as any).__backToTopScrollBound;
+    if (!scrollBound) {
+        (window as any).__backToTopScrollBound = true;
+        window.addEventListener("scroll", requestUpdate, { passive: true });
+        window.addEventListener("resize", requestUpdate, { passive: true });
+    }
+
+    requestUpdate();
+</script>
