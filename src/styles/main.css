@@ -58,6 +58,13 @@ html {
   background-color: var(--primary);
 }
 
+p,
+li,
+blockquote {
+  text-align: justify;
+  text-justify: auto;
+}
+
 @layer components {
   /* View Transitions API 主题切换动画 */
   /* 为整个文档根元素设置视图过渡 */
