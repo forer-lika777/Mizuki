@@ -4,14 +4,7 @@ import { onMount } from "svelte";
 import I18nKey from "../i18n/i18nKey";
 import { i18n } from "../i18n/translation";
 
-export let tags: string[];
-export let categories: string[];
 export let sortedPosts: Post[] = [];
-
-const params = new URLSearchParams(window.location.search);
-tags = params.has("tag") ? params.getAll("tag") : [];
-categories = params.has("category") ? params.getAll("category") : [];
-const uncategorized = params.get("uncategorized");
 
 interface Post {
 	id: string;
@@ -31,8 +24,6 @@ interface Group {
 	posts: Post[];
 }
 
-let groups: Group[] = [];
-
 function formatDate(date: Date) {
 	const month = (date.getMonth() + 1).toString().padStart(2, "0");
 	const day = date.getDate().toString().padStart(2, "0");
@@ -43,33 +34,13 @@ function formatTag(tagList: string[]) {
 	return tagList.map((t) => `#${t}`).join(" ");
 }
 
-onMount(async () => {
-	let filteredPosts: Post[] = sortedPosts;
-
-	if (tags.length > 0) {
-		filteredPosts = filteredPosts.filter(
-			(post) =>
-				Array.isArray(post.data.tags) &&
-				post.data.tags.some((tag) => tags.includes(tag)),
-		);
-	}
-
-	if (categories.length > 0) {
-		filteredPosts = filteredPosts.filter(
-			(post) => post.data.category && categories.includes(post.data.category),
-		);
-	}
-
-	if (uncategorized) {
-		filteredPosts = filteredPosts.filter((post) => !post.data.category);
-	}
-
-	// 按发布时间倒序排序，确保不受置顶影响
-	filteredPosts = filteredPosts
+// 按发布时间倒序分组，确保不受置顶影响
+function buildGroups(posts: Post[]): Group[] {
+	const sorted = posts
 		.slice()
 		.sort((a, b) => b.data.published.getTime() - a.data.published.getTime());
 
-	const grouped = filteredPosts.reduce(
+	const grouped = sorted.reduce(
 		(acc, post) => {
 			const year = post.data.published.getFullYear();
 			if (!acc[year]) {
@@ -81,14 +52,50 @@ onMount(async () => {
 		{} as Record<number, Post[]>,
 	);
 
-	const groupedPostsArray = Object.keys(grouped).map((yearStr) => ({
-		year: Number.parseInt(yearStr, 10),
-		posts: grouped[Number.parseInt(yearStr, 10)],
-	}));
+	return Object.keys(grouped)
+		.map((yearStr) => ({
+			year: Number.parseInt(yearStr, 10),
+			posts: grouped[Number.parseInt(yearStr, 10)],
+		}))
+		.sort((a, b) => b.year - a.year);
+}
 
-	groupedPostsArray.sort((a, b) => b.year - a.year);
+// 构建期先渲染完整列表，避免 Swup 换页瞬间内容区高度为 0 导致移动端 sidebar 跳动
+let groups: Group[] = buildGroups(sortedPosts);
 
-	groups = groupedPostsArray;
+onMount(() => {
+	const params = new URLSearchParams(window.location.search);
+	const activeTags = params.getAll("tag");
+	const activeCategories = params.getAll("category");
+	const uncategorized = params.get("uncategorized");
+
+	if (!activeTags.length && !activeCategories.length && !uncategorized) {
+		return;
+	}
+
+	let filteredPosts = sortedPosts;
+
+	if (activeTags.length > 0) {
+		filteredPosts = filteredPosts.filter(
+			(post) =>
+				Array.isArray(post.data.tags) &&
+				post.data.tags.some((tag) => activeTags.includes(tag)),
+		);
+	}
+
+	if (activeCategories.length > 0) {
+		filteredPosts = filteredPosts.filter(
+			(post) =>
+				post.data.category &&
+				activeCategories.includes(post.data.category),
+		);
+	}
+
+	if (uncategorized) {
+		filteredPosts = filteredPosts.filter((post) => !post.data.category);
+	}
+
+	groups = buildGroups(filteredPosts);
 });
 </script>
 
