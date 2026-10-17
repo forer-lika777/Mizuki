@@ -1,4 +1,6 @@
 export default {
+  plugins: ["prettier-plugin-astro"],
+
   // 全局默认配置
   printWidth: 80,
   tabWidth: 4,
@@ -9,7 +11,7 @@ export default {
   trailingComma: "all",
   bracketSpacing: true,
   arrowParens: "always",
-  endOfLine: "crlf",
+  endOfLine: "auto",
 
   // 针对不同文件类型的覆盖配置
   overrides: [
